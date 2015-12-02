@@ -114,7 +114,12 @@
                     user_cleared = true;
                 }
             } else {
-                prev_value=JSON.parse($('#${attribute.code}').val());
+                var server_value = $('#${attribute.code}').val();
+                if (server_value) {
+                    prev_value=JSON.parse(server_value);
+                } else {
+                    user_cleared = true;
+                }
             }
             if (!user_cleared) {
                 $('#${attribute.code}_address').val(prev_value.properties.address);
