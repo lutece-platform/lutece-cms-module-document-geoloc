@@ -13,7 +13,7 @@
         $('#${attribute.code}').clone().attr('type','hidden').insertAfter('#${attribute.code}').prev().remove();
         $('#help_${attribute.code}').html("#i18n{module.document.geoloc.attributeType.geoloc.help.address}");
 
-        $('<div class="input-group"><input type="text" id="${attribute.code}_address" name="${attribute.code}_address" class="form-control input-sm"><span class="input-group-btn"><button class="btn btn-default" type="button" title="#i18n{module.document.geoloc.attributeType.geoloc.help.clear}" id="button_delete_${attribute.code}"><i class="fa fa-remove"></i></button> </span>').insertAfter('#${attribute.code}');
+        $('<div class="input-group"><input type="text" id="${attribute.code}_address" name="${attribute.code}_address" class="form-control input-sm"><span class="input-group-btn"><button class="btn btn-default" type="button" title="#i18n{module.document.geoloc.attributeType.geoloc.help.clear}" id="button_delete_${attribute.code}"><i class="fa fa-remove"></i></button> </span></div>').insertAfter('#${attribute.code}');
 
         $('<div id=map_${attribute.code} style="height: 300px; width: 100%"></div>').insertBefore('#hidden_${attribute.code}');
 
