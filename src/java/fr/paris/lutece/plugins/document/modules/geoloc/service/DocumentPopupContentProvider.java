@@ -139,14 +139,6 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
                 continue;
             }
 
-            if ( !p.getPortletTypeId(  ).equals( DocumentListPortletHome.getInstance(  ).getPortletTypeId(  ) ) )
-            {
-                AppLogService.debug( "Document popup rest API: refuse type portlet for " + strIdDocument +
-                    ", portlet " + p.getId(  ) + ", type " + p.getPortletTypeId(  ) );
-
-                continue;
-            }
-
             if ( SecurityService.isAuthenticationEnable(  ) )
             {
                 String strRolePortlet = p.getRole(  );
