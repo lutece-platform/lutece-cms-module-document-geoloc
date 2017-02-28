@@ -68,7 +68,9 @@
                     var lambert_y = poi.y;
 
                     p = new Proj4js.Point(lambert_x, lambert_y);
+                    /* Uncomment if the autocomplete source format is Lambert Nord
                     Proj4js.transform(sourceSRID, destSRID, p);
+                    */
 
                     
                     markers_layer.clearLayers();
