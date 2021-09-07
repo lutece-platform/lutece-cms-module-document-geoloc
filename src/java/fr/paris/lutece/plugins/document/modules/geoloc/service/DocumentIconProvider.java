@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,9 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.List;
 
-
 public class DocumentIconProvider implements IIconProvider
 {
-    //Attribute parameter pointing to an icon
+    // Attribute parameter pointing to an icon
     private static final String ATTR_PARAMETER_ICON = "icon";
 
     public String getIcon( String iconKey )
@@ -56,9 +55,9 @@ public class DocumentIconProvider implements IIconProvider
         DocumentType type = DocumentTypeHome.findByPrimaryKey( documentTypeCode );
         DocumentAttribute attribute = null;
 
-        for ( DocumentAttribute _attribute : type.getAttributes(  ) )
+        for ( DocumentAttribute _attribute : type.getAttributes( ) )
         {
-            if ( _attribute.getCode(  ).equals( documentAttributeCode ) )
+            if ( _attribute.getCode( ).equals( documentAttributeCode ) )
             {
                 attribute = _attribute;
 
@@ -68,16 +67,14 @@ public class DocumentIconProvider implements IIconProvider
 
         if ( attribute == null )
         {
-            AppLogService.error( "Document icon provider: no attribute " + documentAttributeCode + " for doctype " +
-                documentTypeCode );
+            AppLogService.error( "Document icon provider: no attribute " + documentAttributeCode + " for doctype " + documentTypeCode );
 
             return null;
         }
 
-        List<String> parameterValues = DocumentAttributeHome.getAttributeParameterValues( attribute.getId(  ),
-                ATTR_PARAMETER_ICON );
+        List<String> parameterValues = DocumentAttributeHome.getAttributeParameterValues( attribute.getId( ), ATTR_PARAMETER_ICON );
 
-        if ( parameterValues.size(  ) > 0 )
+        if ( parameterValues.size( ) > 0 )
         {
             return parameterValues.get( 0 );
         }

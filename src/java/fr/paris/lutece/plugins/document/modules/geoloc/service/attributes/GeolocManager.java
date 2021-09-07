@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 /**
  * Manager for Text Attribute
  */
@@ -80,36 +79,40 @@ public class GeolocManager extends DefaultManager
 
     /**
      * Gets the template to enter the attribute value
+     * 
      * @return The template to enter the attribute value
      */
-    protected String getCreateTemplate(  )
+    protected String getCreateTemplate( )
     {
         return TEMPLATE_CREATE_ATTRIBUTE;
     }
 
     /**
      * Gets the template to modify the attribute value
+     * 
      * @return The template to modify the attribute value
      */
-    protected String getModifyTemplate(  )
+    protected String getModifyTemplate( )
     {
         return TEMPLATE_MODIFY_ATTRIBUTE;
     }
 
     /**
      * Gets the template to enter the parameters of the attribute value
+     * 
      * @return The template to enter the parameters of the attribute value
      */
-    protected String getCreateParametersTemplate(  )
+    protected String getCreateParametersTemplate( )
     {
         return TEMPLATE_CREATE_PARAMETERS_ATTRIBUTE;
     }
 
     /**
      * Gets the template to modify the parameters of the attribute value
+     * 
      * @return The template to modify the parameters of the attribute value
      */
-    protected String getModifyParametersTemplate(  )
+    protected String getModifyParametersTemplate( )
     {
         return TEMPLATE_MODIFY_PARAMETERS_ATTRIBUTE;
     }
@@ -119,9 +122,9 @@ public class GeolocManager extends DefaultManager
      */
     public String getCreateParametersFormHtml( List<AttributeTypeParameter> listParameters, Locale locale )
     {
-        Map<String, Object> model = new HashMap<String, Object>(  );
+        Map<String, Object> model = new HashMap<String, Object>( );
         model.put( MARK_STYLES, PortletHome.getStylesList( DocumentPortlet.RESOURCE_ID ) );
-        model.put( MARK_ICONS, IconService.getList(  ) );
+        model.put( MARK_ICONS, IconService.getList( ) );
 
         return super.getCreateParametersFormHtml( listParameters, locale, model );
     }
@@ -131,9 +134,9 @@ public class GeolocManager extends DefaultManager
      */
     public String getModifyParametersFormHtml( Locale locale, int nAttributeId )
     {
-        Map<String, Object> model = new HashMap<String, Object>(  );
+        Map<String, Object> model = new HashMap<String, Object>( );
         model.put( MARK_STYLES, PortletHome.getStylesList( DocumentPortlet.RESOURCE_ID ) );
-        model.put( MARK_ICONS, IconService.getList(  ) );
+        model.put( MARK_ICONS, IconService.getList( ) );
 
         return super.getModifyParametersFormHtml( locale, nAttributeId, model );
     }
@@ -143,47 +146,46 @@ public class GeolocManager extends DefaultManager
      */
     public String validateValue( int nAttributeId, String strValue, Locale locale )
     {
-        //The "required" check is done before, here we must not error if the string is empty or missing
+        // The "required" check is done before, here we must not error if the string is empty or missing
         if ( ( strValue != null ) && !strValue.equals( "" ) )
         {
             JsonNode object;
 
             try
             {
-                object = new ObjectMapper(  ).readTree( strValue );
+                object = new ObjectMapper( ).readTree( strValue );
             }
-            catch ( IOException e )
+            catch( IOException e )
             {
                 return I18nService.getLocalizedString( KEY_ERROR_INVALID_GEOLOC_VALUE, locale );
             }
 
-            JsonNode objCoordinates = object.path( GEOLOC_JSON_PATH_GEOMETRY )
-                                            .path( GEOLOC_JSON_PATH_GEOMETRY_COORDINATES );
+            JsonNode objCoordinates = object.path( GEOLOC_JSON_PATH_GEOMETRY ).path( GEOLOC_JSON_PATH_GEOMETRY_COORDINATES );
 
-            if ( objCoordinates.isMissingNode(  ) )
+            if ( objCoordinates.isMissingNode( ) )
             {
                 return I18nService.getLocalizedString( KEY_ERROR_MISSING_GEOLOC_VALUE, locale );
             }
             else
             {
-                if ( !objCoordinates.isArray(  ) )
+                if ( !objCoordinates.isArray( ) )
                 {
                     return I18nService.getLocalizedString( KEY_ERROR_NONARRAY_GEOLOC_VALUE, locale );
                 }
                 else
                 {
-                    Iterator<JsonNode> it = objCoordinates.getElements(  );
+                    Iterator<JsonNode> it = objCoordinates.getElements( );
 
                     for ( int i = 0; i < 2; i++ )
                     {
-                        if ( !it.hasNext(  ) )
+                        if ( !it.hasNext( ) )
                         {
                             return I18nService.getLocalizedString( KEY_ERROR_SHORTARRAY_GEOLOC_VALUE, locale );
                         }
 
-                        JsonNode node = it.next(  );
+                        JsonNode node = it.next( );
 
-                        if ( !node.isNumber(  ) )
+                        if ( !node.isNumber( ) )
                         {
                             return I18nService.getLocalizedString( KEY_ERROR_NONNUMBER_GEOLOC_VALUE, locale );
                         }
@@ -196,32 +198,33 @@ public class GeolocManager extends DefaultManager
     }
 
     /**
-     * Get the XML data corresponding to the attribute to build the document XML
-     * content
-     * @param document The document
-     * @param attribute The attribute
+     * Get the XML data corresponding to the attribute to build the document XML content
+     * 
+     * @param document
+     *            The document
+     * @param attribute
+     *            The attribute
      * @return The XML value of the attribute
      */
     public String getAttributeXmlValue( Document document, DocumentAttribute attribute )
     {
-        if ( ( attribute.getTextValue(  ) != null ) && ( attribute.getTextValue(  ).length(  ) != 0 ) )
+        if ( ( attribute.getTextValue( ) != null ) && ( attribute.getTextValue( ).length( ) != 0 ) )
         {
-            String strValue = attribute.getTextValue(  );
+            String strValue = attribute.getTextValue( );
             GeolocItem geolocItem;
 
             try
             {
                 geolocItem = GeolocItem.fromJSON( strValue );
             }
-            catch ( IOException e )
+            catch( IOException e )
             {
-                AppLogService.error( "Document Geoloc, error generating xml from JSON: " + strValue + ", exception" +
-                    e );
+                AppLogService.error( "Document Geoloc, error generating xml from JSON: " + strValue + ", exception" + e );
 
                 return StringUtils.EMPTY;
             }
 
-            return geolocItem.toXML(  );
+            return geolocItem.toXML( );
         }
 
         return StringUtils.EMPTY;

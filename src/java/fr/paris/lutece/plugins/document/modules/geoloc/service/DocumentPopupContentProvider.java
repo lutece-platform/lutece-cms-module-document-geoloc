@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,16 +67,15 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 public class DocumentPopupContentProvider implements IPopupContentProvider
 {
-    //Attribute parameter pointing to a style
+    // Attribute parameter pointing to a style
     private static final String ATTR_PARAMETER_STYLE = "style";
 
-    //Xsl cache key
+    // Xsl cache key
     private static final String DOCUMENT_STYLE_PREFIX_ID = "document-popup-";
 
-    //To mimic a DocumentPortlet
+    // To mimic a DocumentPortlet
     private static final String TAG_DOCUMENT_PORTLET = "document-portlet";
     private static final String VALUE_TRUE = "1";
     private static final String VALUE_FALSE = "0";
@@ -96,7 +95,7 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
         {
             nDocId = Integer.parseInt( strIdDocument );
         }
-        catch ( NumberFormatException nfe )
+        catch( NumberFormatException nfe )
         {
             AppLogService.error( "Document popup rest API: invalid docId: " + strIdDocument + " exeception " + nfe );
 
@@ -105,63 +104,62 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
 
         Document document = DocumentHome.findByPrimaryKeyWithoutBinaries( nDocId );
 
-        if ( ( document == null ) || ( !document.isValid(  ) ) )
+        if ( ( document == null ) || ( !document.isValid( ) ) )
         {
             AppLogService.error( "Document popup rest API: invalid document " + strIdDocument );
 
             return null;
         }
 
-        //Find first portlet of type DocumentList
-        Collection<Portlet> portlets = PublishingService.getInstance(  ).getPortletsByDocumentId( strIdDocument );
+        // Find first portlet of type DocumentList
+        Collection<Portlet> portlets = PublishingService.getInstance( ).getPortletsByDocumentId( strIdDocument );
 
-        if ( portlets.size(  ) == 0 )
+        if ( portlets.size( ) == 0 )
         {
             AppLogService.error( "Document popup rest API: no portlets for doc " + strIdDocument );
 
             return null;
         }
 
-        Iterator<Portlet> iterator = portlets.iterator(  );
+        Iterator<Portlet> iterator = portlets.iterator( );
 
-        //Find first portlet with correct settings
+        // Find first portlet with correct settings
         Portlet portlet = null;
 
         do
         {
-            Portlet p = iterator.next(  );
+            Portlet p = iterator.next( );
 
-            if ( p.getStatus(  ) == Portlet.STATUS_UNPUBLISHED )
+            if ( p.getStatus( ) == Portlet.STATUS_UNPUBLISHED )
             {
-                AppLogService.debug( "Document popup rest API: refuse unpublished portlet for " + strIdDocument +
-                    ", portlet " + p.getId(  ) );
+                AppLogService.debug( "Document popup rest API: refuse unpublished portlet for " + strIdDocument + ", portlet " + p.getId( ) );
 
                 continue;
             }
 
-            if ( SecurityService.isAuthenticationEnable(  ) )
+            if ( SecurityService.isAuthenticationEnable( ) )
             {
-                String strRolePortlet = p.getRole(  );
+                String strRolePortlet = p.getRole( );
 
                 if ( !strRolePortlet.equals( Page.ROLE_NONE ) )
                 {
-                    if ( !SecurityService.getInstance(  ).isUserInRole( request, strRolePortlet ) )
+                    if ( !SecurityService.getInstance( ).isUserInRole( request, strRolePortlet ) )
                     {
-                        AppLogService.debug( "Document popup rest API: refuse portlet role for " + strIdDocument +
-                            ", portlet " + p.getId(  ) + ", role " + strRolePortlet );
+                        AppLogService.debug(
+                                "Document popup rest API: refuse portlet role for " + strIdDocument + ", portlet " + p.getId( ) + ", role " + strRolePortlet );
 
                         continue;
                     }
                 }
 
-                String strRolePage = PageHome.getPage( p.getPageId(  ) ).getRole(  );
+                String strRolePage = PageHome.getPage( p.getPageId( ) ).getRole( );
 
                 if ( !strRolePage.equals( Page.ROLE_NONE ) )
                 {
-                    if ( !SecurityService.getInstance(  ).isUserInRole( request, strRolePage ) )
+                    if ( !SecurityService.getInstance( ).isUserInRole( request, strRolePage ) )
                     {
-                        AppLogService.debug( "Document popup rest API: refuse page role for " + strIdDocument +
-                            ", portlet " + p.getId(  ) + ", role " + strRolePage );
+                        AppLogService.debug(
+                                "Document popup rest API: refuse page role for " + strIdDocument + ", portlet " + p.getId( ) + ", role " + strRolePage );
 
                         continue;
                     }
@@ -170,7 +168,7 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
 
             portlet = p;
         }
-        while ( ( portlet == null ) && iterator.hasNext(  ) );
+        while ( ( portlet == null ) && iterator.hasNext( ) );
 
         if ( portlet == null )
         {
@@ -179,12 +177,12 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
             return null;
         }
 
-        DocumentType type = DocumentTypeHome.findByPrimaryKey( document.getCodeDocumentType(  ) );
+        DocumentType type = DocumentTypeHome.findByPrimaryKey( document.getCodeDocumentType( ) );
         DocumentAttribute attribute = null;
 
-        for ( DocumentAttribute _attribute : type.getAttributes(  ) )
+        for ( DocumentAttribute _attribute : type.getAttributes( ) )
         {
-            if ( _attribute.getCode(  ).equals( strCode ) )
+            if ( _attribute.getCode( ).equals( strCode ) )
             {
                 attribute = _attribute;
 
@@ -194,86 +192,78 @@ public class DocumentPopupContentProvider implements IPopupContentProvider
 
         if ( attribute == null )
         {
-            AppLogService.error( "Document popup rest API: no attribute " + strCode + " for doc " + strIdDocument +
-                " of type " + type.getCode(  ) );
+            AppLogService.error( "Document popup rest API: no attribute " + strCode + " for doc " + strIdDocument + " of type " + type.getCode( ) );
 
             return null;
         }
 
-        String strStyleId = DocumentAttributeHome.getAttributeParameterValues( attribute.getId(  ), ATTR_PARAMETER_STYLE )
-                                                 .get( 0 );
+        String strStyleId = DocumentAttributeHome.getAttributeParameterValues( attribute.getId( ), ATTR_PARAMETER_STYLE ).get( 0 );
         Collection<StyleSheet> listStyleSheet = StyleHome.getStyleSheetList( Integer.parseInt( strStyleId ) );
 
-        if ( listStyleSheet.isEmpty(  ) )
+        if ( listStyleSheet.isEmpty( ) )
         {
             AppLogService.error( "Document popup rest API: no stylesheet for style " + strStyleId );
 
             return null;
         }
 
-        StyleSheet stylesheet = StyleSheetHome.findByPrimaryKey( listStyleSheet.iterator(  ).next(  ).getId(  ) );
+        StyleSheet stylesheet = StyleSheetHome.findByPrimaryKey( listStyleSheet.iterator( ).next( ).getId( ) );
 
-        //Copy from Portlet addPortletTags
-        StringBuffer strXml = new StringBuffer(  );
+        // Copy from Portlet addPortletTags
+        StringBuffer strXml = new StringBuffer( );
         XmlUtil.beginElement( strXml, XmlContent.TAG_PORTLET );
-        XmlUtil.addElementHtml( strXml, XmlContent.TAG_PORTLET_NAME, portlet.getName(  ) );
-        XmlUtil.addElement( strXml, XmlContent.TAG_PORTLET_ID, portlet.getId(  ) );
-        XmlUtil.addElement( strXml, XmlContent.TAG_PAGE_ID, portlet.getPageId(  ) );
-        XmlUtil.addElement( strXml, XmlContent.TAG_PLUGIN_NAME, portlet.getPluginName(  ) );
-        XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_PORTLET_TITLE, portlet.getDisplayPortletTitle(  ) );
+        XmlUtil.addElementHtml( strXml, XmlContent.TAG_PORTLET_NAME, portlet.getName( ) );
+        XmlUtil.addElement( strXml, XmlContent.TAG_PORTLET_ID, portlet.getId( ) );
+        XmlUtil.addElement( strXml, XmlContent.TAG_PAGE_ID, portlet.getPageId( ) );
+        XmlUtil.addElement( strXml, XmlContent.TAG_PLUGIN_NAME, portlet.getPluginName( ) );
+        XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_PORTLET_TITLE, portlet.getDisplayPortletTitle( ) );
 
-        String strDisplayOnSmallDevice = ( ( portlet.getDeviceDisplayFlags(  ) & Portlet.FLAG_DISPLAY_ON_SMALL_DEVICE ) != 0 )
-            ? VALUE_TRUE : VALUE_FALSE;
+        String strDisplayOnSmallDevice = ( ( portlet.getDeviceDisplayFlags( ) & Portlet.FLAG_DISPLAY_ON_SMALL_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
         XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_ON_SMALL_DEVICE, strDisplayOnSmallDevice );
 
-        String strDisplayOnNormalDevice = ( ( portlet.getDeviceDisplayFlags(  ) &
-            Portlet.FLAG_DISPLAY_ON_NORMAL_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
+        String strDisplayOnNormalDevice = ( ( portlet.getDeviceDisplayFlags( ) & Portlet.FLAG_DISPLAY_ON_NORMAL_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
         XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_ON_NORMAL_DEVICE, strDisplayOnNormalDevice );
 
-        String strDisplayOnLargeDevice = ( ( portlet.getDeviceDisplayFlags(  ) & Portlet.FLAG_DISPLAY_ON_LARGE_DEVICE ) != 0 )
-            ? VALUE_TRUE : VALUE_FALSE;
+        String strDisplayOnLargeDevice = ( ( portlet.getDeviceDisplayFlags( ) & Portlet.FLAG_DISPLAY_ON_LARGE_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
         XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_ON_LARGE_DEVICE, strDisplayOnLargeDevice );
 
-        String strDisplayOnXLargeDevice = ( ( portlet.getDeviceDisplayFlags(  ) &
-            Portlet.FLAG_DISPLAY_ON_XLARGE_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
+        String strDisplayOnXLargeDevice = ( ( portlet.getDeviceDisplayFlags( ) & Portlet.FLAG_DISPLAY_ON_XLARGE_DEVICE ) != 0 ) ? VALUE_TRUE : VALUE_FALSE;
         XmlUtil.addElement( strXml, XmlContent.TAG_DISPLAY_ON_XLARGE_DEVICE, strDisplayOnXLargeDevice );
 
         XmlUtil.beginElement( strXml, TAG_DOCUMENT_PORTLET );
-        strXml.append( document.getXml( request, portlet.getId(  ) ) );
+        strXml.append( document.getXml( request, portlet.getId( ) ) );
         XmlUtil.endElement( strXml, TAG_DOCUMENT_PORTLET );
         XmlUtil.endElement( strXml, XmlContent.TAG_PORTLET );
 
-        XmlTransformerService xmlTransformerService = new XmlTransformerService(  );
-        String strXslUniquePrefix = DOCUMENT_STYLE_PREFIX_ID + stylesheet.getId(  );
+        XmlTransformerService xmlTransformerService = new XmlTransformerService( );
+        String strXslUniquePrefix = DOCUMENT_STYLE_PREFIX_ID + stylesheet.getId( );
 
-        //Copy from PageService getParams
-        Map<String, String> mapModifyParam = new HashMap<String, String>(  );
-        mapModifyParam.put( PARAMETER_USER_SELECTED_LOCALE,
-            LocaleService.getUserSelectedLocale( request ).getLanguage(  ) );
+        // Copy from PageService getParams
+        Map<String, String> mapModifyParam = new HashMap<String, String>( );
+        mapModifyParam.put( PARAMETER_USER_SELECTED_LOCALE, LocaleService.getUserSelectedLocale( request ).getLanguage( ) );
 
-        mapModifyParam.put( PARAMETER_SITE_PATH, AppPathService.getPortalUrl(  ) );
+        mapModifyParam.put( PARAMETER_SITE_PATH, AppPathService.getPortalUrl( ) );
 
-        if ( SecurityService.isAuthenticationEnable(  ) )
+        if ( SecurityService.isAuthenticationEnable( ) )
         {
             mapModifyParam.put( MARKER_IS_USER_AUTHENTICATED,
-                ( SecurityService.getInstance(  ).getRegisteredUser( request ) != null ) ? VALUE_TRUE : VALUE_FALSE );
+                    ( SecurityService.getInstance( ).getRegisteredUser( request ) != null ) ? VALUE_TRUE : VALUE_FALSE );
         }
 
-        mapModifyParam.put( Parameters.PAGE_ID, Integer.toString( portlet.getPageId(  ) ) );
+        mapModifyParam.put( Parameters.PAGE_ID, Integer.toString( portlet.getPageId( ) ) );
 
-        Map<String, String> mapXslParams = portlet.getXslParams(  );
+        Map<String, String> mapXslParams = portlet.getXslParams( );
         Map<String, String> mapParams = mapModifyParam;
 
         if ( mapXslParams != null )
         {
-            for ( Entry<String, String> entry : mapXslParams.entrySet(  ) )
+            for ( Entry<String, String> entry : mapXslParams.entrySet( ) )
             {
-                mapParams.put( entry.getKey(  ), entry.getValue(  ) );
+                mapParams.put( entry.getKey( ), entry.getValue( ) );
             }
         }
 
-        String result = xmlTransformerService.transformBySourceWithXslCache( strXml.toString(  ),
-                stylesheet.getSource(  ), strXslUniquePrefix, mapParams,
+        String result = xmlTransformerService.transformBySourceWithXslCache( strXml.toString( ), stylesheet.getSource( ), strXslUniquePrefix, mapParams,
                 ModeHome.getOuputXslProperties( PortalMenuService.MODE_NORMAL ) );
 
         return result;
